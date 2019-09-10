@@ -1,0 +1,309 @@
+---
+title: "reproducibility with `renv`"
+subtitle: Nichole Monhait
+output:
+  xaringan::moon_reader:
+    css: rstudio.css
+    nature:
+      countIncrementalSlides: yes
+      highlightLines: yes
+      highlightStyle: github
+      ratio: '16:9'
+    seal: yes
+---
+
+```{r setup, include=FALSE}
+#Shortcuts
+#c: Create a clone presentation on a new window
+#p: Toggle PresenterMode
+#f: Toggle Fullscreen
+
+options(htmltools.dir.version = FALSE)
+library(ggplot2)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(xaringan)
+
+thm <- theme_bw() + 
+  theme(
+    panel.background = element_rect(fill = "transparent", colour = NA), 
+    plot.background = element_rect(fill = "transparent", colour = NA),
+    legend.background = element_rect(fill = "transparent", colour = NA),
+    legend.key = element_rect(fill = "transparent", colour = NA)
+  )
+theme_set(thm)
+```
+
+class: rstudio-slide, left 
+
+# Nichole Monhait
+
+.small[
+Nichole is on the Customer Success team at RStudio. Prior to RStudio, she studied `Epidemiology` at the Colorado School of Public Health, worked on the `Research and Evaluation` team at the Health District of Northern Larimer County and did graduate work in `Data Analysis` with various teams at Colorado State University.]
+
+---
+class: rstudio-slide, left
+
+# Goal
+
+Start thinking about reproducibility and project management  
+Understand **one** of several tools available to you (open-source) 
+
+---
+class: rstudio-slide, left
+
+# Road map
+.large[
+- Foundational knowledge (projects and version control)
+- Why is reproducibility important?
+- Current challenges
+- Hopeful goals
+- `renv` package
+- Resources] 
+---
+class: dark-gray, center
+
+# Foundational knowledge  
+
+---
+class: rstudio-slide, left
+
+# Quick notes- projects
+
+RStudio allows you to create "Projects" to organize code, data, and results within a directory. When you create a project, RStudio adds a file with the extension ".Rproj" to the directory 
+
+---
+class: rstudio- slide, left  
+
+# Quick notes- projects  
+
+Start a new project  
+
+![](images/proj.png)
+
+---
+class: rstudio-slide, left  
+
+# Quick notes- projects
+
+Advantages to setting a directory to be an R project:
+
+- Automatically uses the directory as your `current working directory` when you open the project 
+- Coordinates well with `git version control` and `GitHub repository system`
+- `Central location` for data analysis- files, scripts, output
+- `Separate` from other work
+
+---
+class: rstudio-slide, left
+
+# Quick notes- version control
+
+Git is a *version control system* 
+
+- `saves information` about all changes you make on all files in a repository
+- allows you to `revert back` to previous versions
+- `search through the history` for all files in the repository  
+
+---
+class: rstudio-slide, left
+
+# Quick notes- version control  
+
+Git is open source  
+You can download it for different operating systems here:   
+
+https://git-scm.com/downloads  
+
+---
+class: rstudio-slide, left
+# Quick notes- version control  
+
+GitHub helps you work with others on code
+
+---
+class: rstudio-slide, left  
+# Quick notes- version control
+
+Collaborating  
+- Different people have the ability to `push and pull` directly to and from the same repository  
+- When one person pushes a change to the repository, other collaborators can `immediately` get the changes by pulling the latest GitHub commits to their local repository   
+
+---
+class: rstudio-slide, left
+
+We recommend developers become familiar with both R project and version control before moving forward...  
+-https://r4ds.had.co.nz/workflow-projects.html#rstudio-projects  
+-https://happygitwithr.com/    
+
+---
+class: class: dark-gray, center
+
+# Why?
+
+---
+class: rstudio-slide, left
+
+# Common Challenges
+
+Code from the past no longer runs  
+Code only runs on your personal machine  
+Broken code although no changes have been made 
+Package updates break someone's code (worse if it's not yours!)  
+
+---
+class: class: dark-gray, center
+
+# How?   
+
+---
+class: rstudio-slide, left
+
+![](images/how.png) 
+
+---
+class: rstudio-slide, left
+
+# Goals
+
+Team collaboration and knowledge sharing   
+Safe package upgrades   
+*Reproducibility!*  
+
+---
+class: class: dark-gray, center
+
+# `renv()` package
+---
+class: rstudio-slide, left
+
+# Overview
+
+`renv` is a package created by RStudio to create reproducible environments
+- private package library per R project
+- take snapshots of the project library at different points
+---
+class: class: dark-gray, center  
+
+#Workflow
+---
+class: rstudio-slide, left
+# Installation  
+
+```{r install, message = FALSE, eval = FALSE}
+if (!requireNamespace("remotes"))
+  install.packages("remotes")
+
+remotes::install_github("rstudio/renv")
+```
+
+---
+class: rstudio-slide, left
+
+# Getting started  
+
+```{r init, message=FALSE, eval = FALSE}
+renv::init()
+```
+![](images/init.png)
+- capture all packages used within R project  
+- write .Rprofile to use private library on other systems
+---
+class: rstudio-slide, left
+# Work!  
+
+
+---
+class: rstudio-slide, left
+# Snapshot  
+
+```{r snapshot, message=FALSE, eval = FALSE}
+renv::snapshot()
+```
+- save current state of R project library to a lockfile  
+
+---
+class: rstudio-slide, left  
+# Work!
+
+
+---
+class: rstudio-slide, left  
+
+#Restore 
+
+```{r restore, message=FALSE, eval = FALSE}
+ renv::restore()
+```
+- restore state of R project library from a previous snapshot in your lockfile  
+
+---
+class: rstudio-slide, left
+
+# `renv()` for Package Upgrades  
+
+1. Analyst uses renv::init() to isolate the project library
+2. Analyst uses renv::snapshot() to record current state
+3. Package upgrades...
+4. If something goes wrong, analyst can restore a previous environment
+---
+class: rstudio-slide, left
+
+# `renv()` for Collaboration  
+
+1. Analyst uses `renv` to create a renv.lock file using renv::snapshot().
+2. Lock file is committed with code using Git.
+3. Team member clones the Git repository into a new project with renv.lock file.
+4. Team member uses renv::restore() to recreate the package environment.
+
+---
+class: rstudio-slide, left
+
+# Takeaways  
+
+Reproducibility is important!  
+Small addition to work has huge rewards  
+Open-source  
+---
+class:rstudio-slide, left 
+
+# There's always more...
+
+- https://resources.rstudio.com/webinars/time-travel-r  
+- https://rstudio.github.io/renv/  
+- https://www.rstudio.com/products/package-manager/
+---
+class: rstudio-slide, left
+
+# With help from...
+
+.left-column[
+.large[
+- https://rstudio.github.io/renv/index.html 
+- https://environments.rstudio.com/
+- https://github.com/rstudio/renv/tree/master/vignettes 
+- https://github.com/carneybill 
+- https://resources.rstudio.com/webinars/time-travel-r 
+
+]]
+
+---
+class: rstudio-slide, left
+
+# Lets connect!
+
+.large[
+- GitHub - https://github.com/nmonhait    
+- Twitter - https://twitter.com/nrmonhait   
+- Email - nichole@rstudio.com  
+- rstudio::conf 2020 - Jan. 27 - 30, San Francisco, CA
+https://www.rstudio.com/conference/  
+  
+]
+
+---
+class: class: dark-gray, center
+
+# Thank you!
+
+
